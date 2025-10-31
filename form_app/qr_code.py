@@ -13,7 +13,7 @@ django.setup()
 print("QR code library is working!")
 
 # URL of your welcome page
-form_url = "http:quick-interview-name.onrender.com/welcome/"
+form_url = "http:quick-interview.onrender.com/welcome/"
 
 
 # Generate QR code
