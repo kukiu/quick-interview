@@ -1,0 +1,110 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Interviewee Form</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'form_app/css/style.css' %}">
+</head>
+<body>
+    <div class="details-container">
+        <h1>Candidate Details</h1>
+        <div class="detail-group">
+            <label>Name:</label>
+            <p>{{ interviewee.name }}</p>
+        </div>
+        <div class="detail-group">
+            <label>Qualification:</label>
+            <p>{{ interviewee.qualification }}</p>
+        </div>
+        <div class="detail-group">
+            <label>Address:</label>
+            <p>{{ interviewee.address }}</p>
+        </div>
+        <div class="detail-group">
+            <label>Designation:</label>
+            <p>{{ interviewee.designation }}</p>
+        </div>
+        <div class="detail-group">
+            <label>Skills:</label>
+            <p>{{ interviewee.skills }}</p>
+        </div>
+        <div class="detail-group">
+            <label>Mobile No:</label>
+            <p>{{ interviewee.mobile_no|default:"None" }}</p>
+        </div>
+        <div class="detail-group">
+            <label>Email:</label>
+            <p>{{ interviewee.email }}</p>
+        </div>
+        <div class="detail-group">
+            <label>Reference:</label>
+            <p>{{ interviewee.reference|default:"None" }}</p>
+        </div>
+
+        {% if interviewee.resume %}
+        <div class="detail-group">
+            <label>Resume:</label>
+            <p>
+                <a href="{{ interviewee.resume.url }}" download class="download-link">Download Resume</a>
+            </p>
+        </div>
+        {% endif %}
+        <a href="{% url 'hr_dashboard' %}" class="back-link">Back to Dashboard</a>
+    </div>
+</body>
+</html>
+
+
+
+
+
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Interviewee Form</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'form_app/css/style.css' %}">
+</head>
+<body>
+    <div class="view-container">
+        <h1>Interviewee Details</h1>
+        <div class="details-container">
+            <div class="detail-group">
+                <label>Name: {{ interviewee.name }}</label>
+                <p></p>
+            </div>
+            <div class="detail-group">
+                <label>Qualification: {{ interviewee.qualification }}</label>
+            </div>
+            <div class="detail-group">
+                <label>Address: {{ interviewee.address }}</label>
+            </div>
+            <div class="detail-group">
+                <label>Designation: {{ interviewee.designation }}</label>
+            </div>
+            <div class="detail-group">
+                <label>Skills: {{ interviewee.skills }}</label>
+            </div>
+            <div class="detail-group">
+                <label>Mobile No: {{ interviewee.mobile_no }}</label>
+            </div>
+            <div class="detail-group">
+                <label>Email: {{ interviewee.email }}</label>
+            </div>
+            {% if interviewee.resume %}
+            <div class="detail-group">
+                <label>Resume:</label>
+                <p>
+                    <a href="{{ interviewee.resume.url }}" download class="download-link">Download Resume</a>
+                </p>
+            </div>
+            {% endif %}
+        </div>
+        <a href="{% url 'feedback_form' interviewee.id %}" class="feedback-button">Give Feedback</a>
+    </div>
+</body>
+</html> {% endcomment %}

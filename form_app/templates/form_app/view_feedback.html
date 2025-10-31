@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <h2>Feedback for {{ candidate.name }}</h2>
+    <p><strong>Designation:</strong> {{ candidate.designation }}</p>
+    <p><strong>Skills:</strong> {{ candidate.skills }}</p>
+
+    <h3>Feedback:</h3>
+    {% if feedbacks %}
+        {% for feedback in feedbacks %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Status: {{ candidate.get_status_display }}</h5>
+                <h5 class="card-title">Rating: {{ feedback.get_rating_display }}</h5>
+                <p class="card-text"><strong>Interviewer:</strong> {{ feedback.interviewer.username }}</p>
+                <p class="card-text"><strong>Comments:</strong> {{ feedback.comments }}</p>
+                <p class="card-text"><small class="text-muted">Submitted at: {{ feedback.submitted_at }}</small></p>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>No feedback yet.</p>
+    {% endif %}
+
+    <a href="{% url 'submit_feedback' candidate.id %}" class="btn btn-primary">Add Feedback</a>
+    <a href="{% url 'hr_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+    <link rel="stylesheet" type="text/css" href="{% static 'form_app/css/style.css' %}">
+
+</div>
+{% endblock %}

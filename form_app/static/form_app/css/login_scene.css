@@ -1,0 +1,208 @@
+/*form_app/css/login_scene.css */
+
+:root {
+  --bg-black: #0b0b0b;
+  --card-bg: rgba(0,0,0,0.72);
+  --muted: #d6d6d6;
+  --accent: #ffffff;
+}
+
+html,body {
+  height:100%;
+  margin:0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: var(--bg-black);
+  color: var(--accent);
+}
+
+.scene-root {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  z-index: 0; /* stays behind */
+  background: #000;
+}
+
+.particles-canvas,
+.diag-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+
+/* Bring form to the front */
+.login-container {
+  position: relative;
+  z-index: 10;
+}
+
+
+/* form wrapper centers card */
+.form-wrapper {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  padding: 24px;
+  pointer-events: none; /* allow clicking on form children only */
+}
+
+/* card */
+.card {
+  pointer-events: auto;
+  width: 100%;
+  max-width: 420px;
+  background: var(--card-bg);
+  padding: 28px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+  color: var(--accent);
+}
+
+.card h1 {
+  margin: 0 0 6px 0;
+  text-align: center; /* Centers the text horizontally */
+  font-size: 22px;
+  font-weight: 700;
+}
+
+
+.card .sub {
+  margin: 0 0 18px 0;
+  color: rgba(255,255,255,0.72);
+  font-size: 13px;
+}
+
+.input-field {
+  display: block;
+  width: 100%;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  color: #fff;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+.row.small {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.7);
+}
+
+.primary-btn {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  background: #fff;
+  color: #000;
+  border-radius: 10px;
+  border:none;
+  font-weight:600;
+  cursor: pointer;
+}
+
+.alt {
+  margin-top: 12px;
+  text-align:center;
+  font-size: 12px;
+  color: rgba(255,255,255,0.6);
+}
+
+.socials {
+  display:flex;
+  gap:8px;
+  justify-content:center;
+  margin-top:10px;
+}
+
+.social {
+  padding:8px 10px;
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,0.08);
+  background:transparent;
+  color: rgba(255,255,255,0.92);
+  cursor:pointer;
+}
+
+/* small messages */
+.messages {
+  list-style: none;
+  padding:0;
+  margin: 0 0 10px 0;
+}
+.msg {
+  font-size: 13px;
+  color: #ffc3c3;
+}
+
+/* Responsive tweaks */
+@media (max-width:600px) {
+  .card { padding:18px; border-radius:12px; }
+  .primary-btn { padding: 10px; }
+}
+
+
+.floating-thoughts {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.floating-thought {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-family: Inter, sans-serif;
+  opacity: 0;
+  animation: floatUp 8s linear forwards;
+  white-space: nowrap;
+  /* left: 0;
+  right: 0; */
+  bottom: 0;
+  transform: translate(-50%);
+  /* margin-left: auto;
+  margin-right: auto; */
+  /* width: fit-content; */
+}
+
+@keyframes floatUp {
+  0% {
+    bottom: 0;
+    /* transform: translateY(0); */
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    bottom: 100vh;
+    /* transform: translateY(-100%); */
+    opacity: 0;
+  }
+}
+
+

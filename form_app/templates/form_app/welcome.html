@@ -1,0 +1,93 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title>
+    {% comment %} <link rel="stylesheet" type="text/css" href="{% static 'form_app/css/style.css' %}"> {% endcomment %}
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            background: linear-gradient(135deg, #1e90ff, #d7e5ea);
+            min-height: 100vh;
+        }
+        .welcome-container {
+            background: #fff;
+            padding: 20px 40px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+        }
+        h1 {
+            color: #333;
+        }
+        .next-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        .next-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="welcome-container">
+        {% comment %} <img src="{% static 'form_app/interviewee_form_welcome.png' %}" alt="QR Code" style="width: 200px; height: 200px;"> {% endcomment %}
+
+        <h2>Welcome to MP SQUARE!</h2>
+        <p>Thank you for scanning the QR code. Please click the Next button to proceed.</p>
+        <button class="next-button" onclick="window.location.href='/submit/'">Next</button>
+
+    <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #000; text-align: center;">
+    <h5 style="margin-bottom: 12px;">Our Products</h5>
+    <div style="display: flex; justify-content: center; align-items: center; gap: 16px; flex-wrap: wrap;">
+        <div style="display: flex; justify-content: center; align-items: center; background-color: #002649; border-radius: 50%; width: 51px; height: 51px;">
+            <img src="https://reqrev.com/static/media/reqrev_logo.ef3b359ca81ccc7849a1.png" alt="ReqRev.com" style="height: 32px;">
+        </div>
+        <div style="display: flex; justify-content: center; align-items: center;">
+            <img src="https://mprw.in/_next/image?url=%2Fimages%2Flogo.png&w=96&q=100" alt="MPRW" style="height: 50px;">
+        </div>
+        <div style="display: flex; justify-content: center; align-items: center;">
+            <img src="https://www.wrirk.com/_next/static/media/logo.d19f0182.svg" alt="wrirk" style="height: 60px;">
+        </div>
+    </div>
+    <p style="color: #6c757d; font-size: 0.875rem; margin-top: 12px; margin-bottom: 0;">
+        © 2025 All rights reserved.
+    </p>
+</div>
+    </div>
+
+    <!-- Include canvas-confetti library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+    <!-- Script to trigger confetti on page load -->
+    <script>
+        window.onload = function() {
+    confetti({
+        particleCount: 500,
+        spread: 1000,
+        startVelocity: 30,
+        colors: ['#bb0000', '#ffffff', '#0088cc', '#eeeeee', '#ffff00'],
+        origin: { y: 0.2 }
+    });
+};
+    </script>
+</body>
+</html>

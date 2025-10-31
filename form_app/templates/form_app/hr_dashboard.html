@@ -1,0 +1,418 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <title>HR Dashboard</title> -->
+    <title>HR Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'form_app/css/hr_dashboard.css' %}">
+</head>
+
+<body>
+    <div class="header">
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="logout-button">Logout</button>
+            </form>
+
+            <div>
+                <h1>HR Dashboard - Candidate Submissions</h1>
+                <p>Last updated: <span id="current-time"></span></p>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <!-- Notification Icon -->
+                <div style="position: relative; margin-right: 15px;">
+                    <i class="fas fa-bell notification-icon" style="font-size: 24px; cursor: pointer;"
+                        onclick="toggleNotifications()"></i>
+                    <span id="notification-badge" class="badge" style="display: none;">0</span>
+                </div>
+                <!-- Dark Mode Toggle -->
+                <div style="margin-right: 15px;">
+                    <label class="toggle-switch">
+                        <input type="checkbox" onchange="toggleDarkMode()" id="darkModeToggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Sidebar -->
+    <div id="notification-sidebar" class="notification-sidebar">
+        <div class="notification-header">
+            <h3>Notifications</h3>
+            <span onclick="toggleNotifications()" style="cursor: pointer;">&times;</span>
+        </div>
+        <div id="notification-list" class="notification-list">
+            <!-- Notifications will be added here dynamically -->
+        </div>
+    </div>
+
+
+
+    <div class="summary-cards">
+        <div class="card">
+            <i class="fas fa-file-alt"></i>
+            <h3>Total Submissions</h3>
+            <p>
+                {{ submissions|length }}
+            </p>
+        </div>
+        <div class="card">
+            <i class="fas fa-calendar-day"></i>
+            <h3>Submissions Today</h3>
+            <p>
+                {{ submissions_today }}
+            </p>
+        </div>
+        <div class="card">
+            <i class="fas fa-clock"></i>
+            <h3>Pending Reviews</h3>
+            <p>{{pending_reviews|length}}</p> <!-- Replace with dynamic data -->
+        </div>
+        <div class="card">
+            <i class="fas fa-hourglass-half"></i>
+            <h3>Avg. Response Time</h3>
+            <p>{{avg_response_time|floatformat:2}} hours</p> <!-- Replace with dynamic data -->
+        </div>
+    </div>
+
+    <div class="charts-container">
+        <div class="chart-container">
+            <canvas id="designationChart"></canvas>
+            <h3>Submissions by Designation</h3>
+        </div>
+        <div class="chart-container">
+            <canvas id="qualificationChart"></canvas>
+            <h3>Qualifications Distribution</h3>
+        </div>
+        <div class="chart-container">
+            <canvas id="skillsChart"></canvas>
+            <h3>Top Skills Distribution</h3>
+        </div>
+    </div>
+
+    <div id="trends-container">
+        <canvas id="trendsChart"></canvas>
+        <h3>Submission Trends Over Time</h3>
+    </div>
+
+    <div class="submissions-container">
+        <div id="submissions-list">
+            <h2>Pending Submissions</h2>
+            {% if pending_reviews %}
+            {% for pending_review in pending_reviews %}
+            <div class="submission">
+                <p>{{ pending_review.name }} ({{ pending_review.designation }})</p>
+                <p>Skills: {{ pending_review.skills }}</p>
+                <p>Submitted: {{ pending_review.submitted_at|date:"M d, Y, h:i a" }}</p>
+                <a href="{% url 'submit_feedback' pending_review.id %}" class="btn btn-sm btn-info">Submit Feedback</a>
+                <a href="{% url 'view_feedback' pending_review.id %}" class="btn btn-sm btn-secondary">View Feedback</a>
+                <a href="{% url 'view_interviewee_form' pending_review.id %}" class="btn btn-sm btn-secondary">View
+                    Form</a>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p>No Pending submissions.</p>
+            {% endif %}
+        </div>
+
+        <div id="reviewed-list">
+            <h2>Reviewed Submissions</h2>
+            {% if reviewed_reviews %}
+            {% for reviewed_review in reviewed_reviews %}
+            <div class="reviewed">
+                <p>{{ reviewed_review.name }} ({{ reviewed_review.designation }})</p>
+                <p>Skills: {{ reviewed_review.skills }}</p>
+                <p>Submitted: {{ reviewed_review.submitted_at|date:"M d, Y, h:i a" }}</p>
+                <a href="{% url 'submit_feedback' reviewed_review.id %}" class="btn btn-sm btn-info">Submit Feedback</a>
+                <a href="{% url 'view_feedback' reviewed_review.id %}" class="btn btn-sm btn-secondary">View
+                    Feedback</a>
+                <a href="{% url 'view_interviewee_form' reviewed_review.id %}" class="btn btn-sm btn-secondary">View
+                    Form</a>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p>No Reviewed submissions.</p>
+            {% endif %}
+        </div>
+    </div>
+
+
+    <!-- JavaScript for WebSocket and Charts -->
+    <script>
+
+        // Toggle dark mode function
+        {% comment %} function toggleDarkMode() {
+            const body = document.body;
+            const toggle = document.getElementById('darkModeToggle');
+            if (body.classList.contains('dark-mode')) {
+                body.classList.remove('dark-mode');
+                localStorage.setItem('darkMode', 'false');
+            } else {
+                body.classList.add('dark-mode');
+                localStorage.setItem('darkMode', 'true');
+            }
+        } {% endcomment %}
+
+        // Update current time
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('current-time').textContent = now.toLocaleString();
+        }
+
+        // Check for saved dark mode preference and initialize charts
+        document.addEventListener('DOMContentLoaded', function () {
+            const body = document.body;
+            const toggle = document.getElementById('darkModeToggle');
+            if (localStorage.getItem('darkMode') === 'true') {
+                body.classList.add('dark-mode');
+                toggle.checked = true;
+            }
+
+            setInterval(updateTime, 1000);
+            updateTime();
+
+            // Global variables to store chart instances
+            let designationChart, qualificationChart, skillsChart, trendsChart;
+
+            // Initialize charts
+            initializeBarChart();
+            initializePieCharts();
+            initializeLineChart();
+        });
+
+
+        // Bar Chart for Submissions by Designation
+        function initializeBarChart() {
+            const labels = JSON.parse('{{ designations_labels|escapejs }}');
+            const data = JSON.parse('{{ designations_data|escapejs }}');
+            const ctx = document.getElementById('designationChart').getContext('2d');
+            designationChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Submissions by Designation',
+                        data: data,
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: getChartOptions()
+            });
+        }
+
+        // Pie Charts for Qualifications and Skills
+        function initializePieCharts() {
+            // Qualifications Pie Chart
+            const qualificationsLabels = JSON.parse('{{ qualifications_labels|escapejs }}');
+            const qualificationsData = JSON.parse('{{ qualifications_data|escapejs }}');
+            const ctxQualification = document.getElementById('qualificationChart').getContext('2d');
+            qualificationChart = new Chart(ctxQualification, {
+                type: 'pie',
+                data: {
+                    labels: qualificationsLabels,
+                    datasets: [{
+                        data: qualificationsData,
+                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
+                    }]
+                },
+                options: getChartOptions()
+            });
+
+            // Skills Pie Chart
+            const skillsLabels = JSON.parse('{{ top_skills_labels|escapejs }}');
+            const skillsData = JSON.parse('{{ top_skills_data|escapejs }}');
+            const ctxSkills = document.getElementById('skillsChart').getContext('2d');
+            skillsChart = new Chart(ctxSkills, {
+                type: 'pie',
+                data: {
+                    labels: skillsLabels,
+                    datasets: [{
+                        data: skillsData,
+                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
+                    }]
+                },
+                options: getChartOptions()
+            });
+        }
+
+        // Line Graph for Submission Trends
+        function initializeLineChart() {
+            const dailyDates = JSON.parse('{{ daily_dates|escapejs }}');
+            const dailyCounts = JSON.parse('{{ daily_counts|escapejs }}');
+            const weeklyDates = JSON.parse('{{ weekly_dates|escapejs }}');
+            const weeklyCounts = JSON.parse('{{ weekly_counts|escapejs }}');
+            const monthlyDates = JSON.parse('{{ monthly_dates|escapejs }}');
+            const monthlyCounts = JSON.parse('{{ monthly_counts|escapejs }}');
+
+            const ctxTrends = document.getElementById('trendsChart').getContext('2d');
+            trendsChart = new Chart(ctxTrends, {
+                type: 'line',
+                data: {
+                    labels: dailyDates,
+                    datasets: [
+                        {
+                            label: 'Daily Submissions',
+                            data: dailyCounts,
+                            borderColor: '#36A2EB',
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            tension: 0.1
+                        },
+                        {
+                            label: 'Weekly Submissions',
+                            data: weeklyCounts,
+                            borderColor: '#FF6384',
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            tension: 0.1
+                        },
+                        {
+                            label: 'Monthly Submissions',
+                            data: monthlyCounts,
+                            borderColor: '#e9e615ff',
+                            backgroundColor: 'rgba(222, 241, 11, 0.2)',
+                            tension: 0.1
+                        }
+                    ]
+                },
+                options: getChartOptions()
+            });
+        }
+
+        // Function to get chart options based on current mode
+        function getChartOptions() {
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            return {
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: isDarkMode ? 'white' : 'black'
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: isDarkMode ? 'white' : 'black'
+                        },
+                        grid: {
+                            color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            color: isDarkMode ? 'white' : 'black'
+                        },
+                        grid: {
+                            color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                        },
+                        beginAtZero: true
+                    }
+                }
+            };
+        }
+
+        // Function to update chart options for dark mode
+        function updateChartsForDarkMode() {
+            const options = getChartOptions();
+            designationChart.options = options;
+            qualificationChart.options = options;
+            skillsChart.options = options;
+            trendsChart.options = options;
+
+            designationChart.update();
+            qualificationChart.update();
+            skillsChart.update();
+            trendsChart.update();
+        }
+
+        // Toggle dark mode function
+        function toggleDarkMode() {
+            const body = document.body;
+            if (body.classList.contains('dark-mode')) {
+                body.classList.remove('dark-mode');
+                localStorage.setItem('darkMode', 'false');
+            } else {
+                body.classList.add('dark-mode');
+                localStorage.setItem('darkMode', 'true');
+            }
+            updateChartsForDarkMode();
+        }
+
+        // Check for saved user preference, if any, on load
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+            updateChartsForDarkMode();
+        }
+
+        // Initialize charts when the page loads
+        {% comment %} document.addEventListener('DOMContentLoaded', initializeCharts); {% endcomment %}
+
+
+        let notificationCount = 0;
+
+        // Toggle notification sidebar
+        function toggleNotifications() {
+            const sidebar = document.getElementById('notification-sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        // Show toast notification
+        function showToastNotification(message) {
+            const toast = document.getElementById('toast-notification');
+            toast.style.display = 'block';
+            toast.innerHTML = message;
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 5000);
+        }
+
+        // Add notification to the sidebar
+        function addNotification(message) {
+            const notificationList = document.getElementById('notification-list');
+            const notificationItem = document.createElement('div');
+            notificationItem.className = 'notification-item';
+            notificationItem.innerHTML = message;
+            notificationList.prepend(notificationItem);
+            updateNotificationBadge();
+        }
+
+        // Update notification badge
+        function updateNotificationBadge() {
+            notificationCount++;
+            const badge = document.getElementById('notification-badge');
+            badge.style.display = 'inline';
+            badge.textContent = notificationCount;
+        }
+
+        // WebSocket for real-time updates
+        {% comment %} const socket = new WebSocket('ws://' + window.location.host + '/ws/submissions/');
+        socket.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            if (data.type === 'new_submission') {
+                const message = `
+                    <strong>New Submission:</strong> ${data.data.name} (${data.data.designation})<br>
+                    <small>${new Date().toLocaleString()}</small>
+                `;
+                showToastNotification(message);
+                addNotification(message);
+            }
+        }; {% endcomment %}
+
+
+    </script>
+    <div id="toast-notification" class="toast-notification"></div>
+
+</body>
+
+</html>
