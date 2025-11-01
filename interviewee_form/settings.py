@@ -132,10 +132,10 @@ USE_TZ = True
 
 # STATIC_URL = 'static/'
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Add this line
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'form_app', 'static'),
-]
+STATIC_ROOT = os.path.join(BASE_DIR, 'form_app', 'static')  # Add this line
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, 'form_app', 'static'),
+# ]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

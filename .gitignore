@@ -20,6 +20,8 @@ env/
 .idea/
 .vscode/
 
+# Static files (if not part of the project)
+staticfiles/
 
 # Media files (user uploads)
 media/
