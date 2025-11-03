@@ -14,7 +14,7 @@ class IntervieweeForm(models.Model):
     designation = models.CharField(max_length=100)
     skills = models.TextField()
     submitted_at = models.DateTimeField(auto_now_add=True)
-    mobile_no = models.IntegerField(null=True, blank=True)  
+    mobile_no = models.BigIntegerField(null=True, blank=True)  
     email = models.TextField(null=True, blank=True)  
     resume = models.FileField(upload_to='resumes/', null=True, blank=True)
     reference = models.CharField(max_length=50, null=True, blank=True)
